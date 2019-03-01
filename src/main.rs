@@ -259,6 +259,11 @@ impl CompleteGame {
                 }
             }
         } else {
+            // On first level, don't keep the journal around, since all the
+            // instructions and their conclusions came from the source puzzle
+            if level == 0 {
+                self.journal.clear();
+            }
 
             let journal_pos = self.journal.len();
 
@@ -312,31 +317,20 @@ fn parse_file(file_name:&str) -> Result<Vec<SetInstruction>, io::Error> {
 }
 
 fn main() -> Result<(),io::Error> {
-    println!("Hello, world!");
-
-    /*let journal: LinkedList<JournalEntry> = LinkedList::new();
-    let board = [[
-        Cell {
-            value: 0,
-            options: [true, true, true, true, true, true, true, true, true]
-        }; 9]; 9];
-
-    board_apply(board, journal, Vec::new(), 0);*/
-
-
-
     let start = Instant::now();
 
     let mut cg = CompleteGame::new();
 
+    // Load initial table as instructions into a vector
     let initial = parse_file("boards/hard-1")?;
-    // let initial = vec![];
     cg.apply(initial, 0);
 
     // println!("solutions: {}", cg.solutions.len());
+    // Just print the amount of solutions, when it's over a handful, the printing will
+    // eat a lot of time
     println!("solutions: {}", cg.solution_count);
 
-    //println!("{:?}", cg.solutions);
+    // measure the time took to solve the puzzle, not very accurate
     let elapsed = start.elapsed();
     let sec = (elapsed.as_secs() as f64) + (elapsed.subsec_nanos() as f64 / 1000_000_000.0);
     println!("{} seconds elapsed.", sec);
